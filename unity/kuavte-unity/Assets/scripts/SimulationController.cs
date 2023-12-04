@@ -97,34 +97,33 @@ struct FDMEnvironmentInput{
 
 public class SimulationController : MonoBehaviour
 {
-    static IntPtr FDMLibrary;
+    static IntPtr fdmModelLibrary;
 
-    delegate IntPtr CreateFdmModel();
+    delegate IntPtr FDMCreate();
+    delegate void FDMDelete(IntPtr model);
+    delegate void FDMInit(IntPtr model);
+    delegate void FDMDeinit(IntPtr model);
+    delegate void FDMSendData(IntPtr model, uint data);
 
-    delegate void DeleteFdmModel(IntPtr model);
-
-    delegate void DoSomething(IntPtr model);
-
-    void Awake(){
-        if (FDMLibrary != IntPtr.Zero) return;
+    void Awake()
+    {
+        if (fdmModelLibrary != IntPtr.Zero) return;
  
-        FDMLibrary = Native.LoadLibrary("Assets/kuavte-fdm-model/KuavteFdmModel.dll");
-        if (FDMLibrary == IntPtr.Zero)
+        fdmModelLibrary = Native.LoadLibrary("Assets/kuavte-fdm-model/KuavteFdmModel.dll");
+        if (fdmModelLibrary == IntPtr.Zero)
         {
-            Debug.LogError("Failed to load native library");
-        }
-        else{
-            Debug.Log("Native library loaded successfully");
+            Debug.LogError("Failed to load FDM Model library");
         }
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        Debug.Log("Starting!");
-        IntPtr instance = Native.Invoke<IntPtr, CreateFdmModel>(FDMLibrary);
-        Native.Invoke<DoSomething>(FDMLibrary, instance);
-        Native.Invoke<DeleteFdmModel>(FDMLibrary, instance);
+        IntPtr instance = Native.Invoke<IntPtr, FDMCreate>(fdmModelLibrary);
+        Native.Invoke<FDMInit>(fdmModelLibrary, instance);
+        Native.Invoke<FDMSendData>(fdmModelLibrary, instance, 7);
+        Native.Invoke<FDMDeinit>(fdmModelLibrary, instance);
+        Native.Invoke<FDMDelete>(fdmModelLibrary, instance);
         instance = IntPtr.Zero;
     }
 
@@ -136,10 +135,10 @@ public class SimulationController : MonoBehaviour
 
     void OnApplicationQuit()
     {
-        if (FDMLibrary == IntPtr.Zero) return;
+        if (fdmModelLibrary == IntPtr.Zero) return;
  
-        Debug.Log(Native.FreeLibrary(FDMLibrary)
-                      ? "Native library successfully unloaded."
-                      : "Native library could not be unloaded.");
+        Debug.Log(Native.FreeLibrary(fdmModelLibrary)
+                      ? "FDM Model library successfully unloaded."
+                      : "FDM Model library could not be unloaded.");
     }
 }

@@ -14,3 +14,5 @@ set_target_properties(KuavteFdmModel PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/../kuavte-unity/Assets/kuavte-fdm-model
     RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR}/../kuavte-unity/Assets/kuavte-fdm-model
 )
+
+target_link_libraries(KuavteFdmModel PRIVATE ws2_32 wsock32)

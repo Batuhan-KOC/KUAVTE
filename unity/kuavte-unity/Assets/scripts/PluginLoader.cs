@@ -1,8 +1,4 @@
-/*
- * Native dll invocation helper by Francis R. Griffiths-Keam
- * www.runningdimensions.com/blog
- */
- 
+
 using System;
 using System.Runtime.InteropServices;
 using UnityEngine;
