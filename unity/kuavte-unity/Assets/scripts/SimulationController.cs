@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.VisualScripting;
 
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 struct GymEnvironmentInput
@@ -16,17 +17,17 @@ struct GymEnvironmentInput
      * given values. 
      *
      * Values :
-     * 0 : Gym environment do not want to restart
-     * 1 : Not moving target - constant size
-     * 2 : Constant moving target - constant size
-     * 3 : Circular moving target - constant size
-     * 4 : Randomly moving target - constant size
-     * 5 : Not moving target - varying size
-     * 6 : Constant moving target - varying size
-     * 7 : Circular moving target - varying size
-     * 8 : Randomly moving target - varying size
+     * 0 : No Initialization
+     * 1 : Ground Linear
+     * 2 : Ground Circular
+     * 3 : Ground Random
+     * 4 : Air Linear
+     * 5 : Air Circular
+     * 6 : Air Random
+     * 7 : Escape
+     * 8 : Great Circle
     */
-    public uint restart;
+    public uint initialize;
 
     /* Name : Throttle
      *
@@ -96,15 +97,49 @@ struct FDMEnvironmentInput{
 
 public class SimulationController : MonoBehaviour
 {
+    static IntPtr FDMLibrary;
+
+    delegate IntPtr CreateFdmModel();
+
+    delegate void DeleteFdmModel(IntPtr model);
+
+    delegate void DoSomething(IntPtr model);
+
+    void Awake(){
+        if (FDMLibrary != IntPtr.Zero) return;
+ 
+        FDMLibrary = Native.LoadLibrary("Assets/kuavte-fdm-model/KuavteFdmModel.dll");
+        if (FDMLibrary == IntPtr.Zero)
+        {
+            Debug.LogError("Failed to load native library");
+        }
+        else{
+            Debug.Log("Native library loaded successfully");
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        Debug.Log("Starting!");
+        IntPtr instance = Native.Invoke<IntPtr, CreateFdmModel>(FDMLibrary);
+        Native.Invoke<DoSomething>(FDMLibrary, instance);
+        Native.Invoke<DeleteFdmModel>(FDMLibrary, instance);
+        instance = IntPtr.Zero;
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+
+    void OnApplicationQuit()
+    {
+        if (FDMLibrary == IntPtr.Zero) return;
+ 
+        Debug.Log(Native.FreeLibrary(FDMLibrary)
+                      ? "Native library successfully unloaded."
+                      : "Native library could not be unloaded.");
     }
 }

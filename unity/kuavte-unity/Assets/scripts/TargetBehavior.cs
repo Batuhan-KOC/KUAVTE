@@ -11,7 +11,7 @@ public enum TargetSizingType{
 }
 
 public enum TargetMovementType{
-    NoMovement = 0,
+    NoMovement = 1,
     GroundLinear, // Obje kendi konumun x ekseninde -5 ve 5 aralığında sabit hızla hareket eder
     GroundCircular, // Obje başlangıç konumu merkez olacak şekilde 5m yarıçap sabit hızla çember çizer
     GroundRandom, // Obje kendi konumu merkez olacak şekilde x - y ekseninde (-5,-5) (5,5) karesi içinde rastgele hareket eder
@@ -89,7 +89,7 @@ public class TargetBehavior : MonoBehaviour
         corner8 = TransformDeepChildExtension.FindDeepChild(transform, "Corner8");
         center = TransformDeepChildExtension.FindDeepChild(transform, "Center");
 
-        Initialize(TargetMovementType.GreatCircle);
+        Initialize(TargetMovementType.NoMovement);
     }
 
     void Initialize(TargetMovementType mt = TargetMovementType.NoMovement, 
