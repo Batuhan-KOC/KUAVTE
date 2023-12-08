@@ -1,0 +1,94 @@
+{
+    "name": "JumperTPRO",
+    "maps": [
+        {
+            "name": "JumperTPROAction",
+            "id": "a8f23881-ebcf-4b22-aa96-618ff8a84e01",
+            "actions": [
+                {
+                    "name": "Throttle",
+                    "type": "Value",
+                    "id": "1ca6b095-5095-4706-a263-56c907a89e72",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Yaw",
+                    "type": "Value",
+                    "id": "0333b051-7ec5-488c-9c91-6d96c4730adc",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Pitch",
+                    "type": "Value",
+                    "id": "03c5f646-6075-4106-93c6-1b33332d71d7",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Roll",
+                    "type": "Value",
+                    "id": "839b07cd-0178-4ed5-8826-1548b980b5ce",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "8225b8be-2527-48da-958c-1c6861e2eba2",
+                    "path": "<HID::EdgeTX Jumper TPro V2 Joystick>/z",
+                    "interactions": "",
+                    "processors": "Normalize(min=-1,max=1,zero=-1)",
+                    "groups": "",
+                    "action": "Throttle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7dcddd4d-2474-4c35-9f6a-105b1f2fc68a",
+                    "path": "<HID::EdgeTX Jumper TPro V2 Joystick>/rx",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Yaw",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "09050bc2-1426-40ab-bf20-ecacdd959606",
+                    "path": "<HID::EdgeTX Jumper TPro V2 Joystick>/stick/y",
+                    "interactions": "",
+                    "processors": "Invert",
+                    "groups": "",
+                    "action": "Pitch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5648144e-e81c-4ee5-aa9f-950894e50fa2",
+                    "path": "<HID::EdgeTX Jumper TPro V2 Joystick>/stick/x",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Roll",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

@@ -2,13 +2,16 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.VisualScripting;
+using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct GymEnvironmentInput
+public struct GymEnvironmentInput
 {
     /* Name : Restart
      *
@@ -82,28 +85,27 @@ struct GymEnvironmentInput
     public float roll;
 }
 
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
-struct FDMEnvironmentInput{
-    // Position data
-    public float x;
-    public float y;
-    public float z;
-
-    // Attitude data
-    public float phi;
-    public float psi;
-    public float theta;
+public struct JumperTPROInputs{
+    public float throttle;
+    public float roll;
+    public float pitch;
+    public float yaw;
 }
 
 public class SimulationController : MonoBehaviour
 {
     static IntPtr fdmModelLibrary;
 
+    static IntPtr instance = IntPtr.Zero;
+
     delegate IntPtr FDMCreate();
     delegate void FDMDelete(IntPtr model);
-    delegate void FDMInit(IntPtr model);
-    delegate void FDMDeinit(IntPtr model);
-    delegate void FDMSendData(IntPtr model, uint data);
+    delegate void FDMStartEnvironment(IntPtr model, float deltaTime, bool realTime);
+    delegate void FDMStopEnvironment(IntPtr model);
+    delegate void FDMSetTRPY(IntPtr model, float throttle, float roll, float pitch, float yaw);
+
+    JumperTPRO control;
+    JumperTPROInputs controlInputs;
 
     void Awake()
     {
@@ -114,27 +116,68 @@ public class SimulationController : MonoBehaviour
         {
             Debug.LogError("Failed to load FDM Model library");
         }
+
+        control = new JumperTPRO();
+
+        control.JumperTPROAction.Throttle.performed += JumperTPROThrottleChanged;
+        control.JumperTPROAction.Yaw.performed += JumperTPROYawChanged;
+        control.JumperTPROAction.Pitch.performed += JumperTPROPitchChanged;
+        control.JumperTPROAction.Roll.performed += JumperTPRORollChanged;
+    }
+
+    void OnEnable(){
+        control.JumperTPROAction.Enable();
+    }
+
+    void OnDisable(){
+        control.JumperTPROAction.Disable();
+    }
+
+    void JumperTPROThrottleChanged(InputAction.CallbackContext context){
+        controlInputs.throttle = context.ReadValue<float>();
+        JumperTPROChanged();
+    }
+
+    void JumperTPROYawChanged(InputAction.CallbackContext context){
+        controlInputs.yaw = context.ReadValue<float>();
+        JumperTPROChanged();
+    }
+
+    void JumperTPROPitchChanged(InputAction.CallbackContext context){
+        controlInputs.pitch = context.ReadValue<float>();
+        JumperTPROChanged();
+    }
+
+    void JumperTPRORollChanged(InputAction.CallbackContext context){
+        controlInputs.roll = context.ReadValue<float>();
+        JumperTPROChanged();
+    }   
+
+    void JumperTPROChanged(){
+        if (instance != IntPtr.Zero){
+            Native.Invoke<FDMSetTRPY>(fdmModelLibrary, instance, controlInputs.throttle, controlInputs.roll, controlInputs.pitch, controlInputs.yaw);
+        }
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        IntPtr instance = Native.Invoke<IntPtr, FDMCreate>(fdmModelLibrary);
-        Native.Invoke<FDMInit>(fdmModelLibrary, instance);
-        Native.Invoke<FDMSendData>(fdmModelLibrary, instance, 7);
-        Native.Invoke<FDMDeinit>(fdmModelLibrary, instance);
-        Native.Invoke<FDMDelete>(fdmModelLibrary, instance);
-        instance = IntPtr.Zero;
+        instance = Native.Invoke<IntPtr, FDMCreate>(fdmModelLibrary);
+
+        Native.Invoke<FDMStartEnvironment>(fdmModelLibrary, instance, (float)0, false);
     }
 
     // Update is called once per frame
     void Update()
     {
-        
     }
 
     void OnApplicationQuit()
     {
+        Native.Invoke<FDMStopEnvironment>(fdmModelLibrary, instance);
+        Native.Invoke<FDMDelete>(fdmModelLibrary, instance);
+        instance = IntPtr.Zero;
+
         if (fdmModelLibrary == IntPtr.Zero) return;
  
         Debug.Log(Native.FreeLibrary(fdmModelLibrary)
