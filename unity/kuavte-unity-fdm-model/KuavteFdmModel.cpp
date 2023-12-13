@@ -1,5 +1,7 @@
 #include "KuavteFdmModel.h"
 
+#include <cstdlib>
+#include <ctime>
 #include <chrono>
 
 KuavteFdmModel::KuavteFdmModel()
@@ -122,6 +124,8 @@ void KuavteFdmModel::InitializeFDMEnvironment()
     Log("FDM scas engaging");
     fdm->SetPropertyValue("fcs/ScasEngage", 1);
 
+    fdm->SetPropertyValue("position/h-sl-meters", 25.0f);
+
     Log("FDM environment initialization completed");
 }
 
@@ -129,6 +133,12 @@ void KuavteFdmModel::Log(std::string data)
 {
     FDMLogFile << data << std::endl;
 }
+
+// AILERON -----> ROLL -----> Z -----> PHI
+
+// ELEVATOR -----> PITCH -----> X -----> THETA
+
+// RUDDER -----> YAW -----> Y -----> PSI
 
 void KuavteFdmModel::SetTRPY(float throttle, float roll, float pitch, float yaw)
 {
@@ -140,7 +150,7 @@ void KuavteFdmModel::SetTRPY(float throttle, float roll, float pitch, float yaw)
     }
 }
 
-void KuavteFdmModel::StartFDMEnvironment(float frequency, bool realtime)
+void KuavteFdmModel::StartFDMEnvironment(float frequency, bool windActive)
 {
     Log("Starting FDM Environment");
 
@@ -153,10 +163,24 @@ void KuavteFdmModel::StartFDMEnvironment(float frequency, bool realtime)
         this->freq = 25;
     }
 
-    this->rt = realtime;
-
     if(isRunning){
         StopFDMEnvironment();
+    }
+
+    windActived = windActive;
+
+    if(windActived){
+        srand(time(0));
+
+        float r_windspeed = ((float((std::rand() % 405) + 20)) / 10.0f) * MPH_TO_FPS;
+
+        srand(time(0));
+
+        float r_winddirection = (float(std::rand() % 6283)) / 1000.0f;
+
+        windSpeed = r_windspeed;
+
+        windDirection = r_winddirection;
     }
 
     InitializeFDMEnvironment();
@@ -203,6 +227,7 @@ void KuavteFdmModel::SendPosition()
     sendData.phi = fdm->GetPropertyValue("attitude/phi-rad") * 57.2957795f;
     sendData.theta = fdm->GetPropertyValue("attitude/theta-rad") * 57.2957795f;
     sendData.psi = fdm->GetPropertyValue("attitude/psi-rad") * 57.2957795f;
+    sendData.simulation_time = fdm->GetPropertyValue("simulation/sim-time-sec");
 
     int bytes = sendto(udpSocket, reinterpret_cast<const char*>(&sendData), sizeof(PositionData), 0, reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr));
 }
@@ -217,13 +242,15 @@ void KuavteFdmModel::FDMThreadFunction()
 
     while(isRunning){
         if(fdm != nullptr){
-            // if realtime
-            if(rt){
-
+            if(windActived){
+                fdm->SetPropertyValue("atmosphere/psiw-rad", windDirection);
+                fdm->SetPropertyValue("atmosphere/wind-mag-fps", windSpeed);
             }
             else{
-                fdm->Run();
+                fdm->SetPropertyValue("atmosphere/wind-mag-fps", 0.0f);
             }
+
+            fdm->Run();
 
             SendPosition();
         }
@@ -232,7 +259,6 @@ void KuavteFdmModel::FDMThreadFunction()
             isRunning = false;
         }
 
-        // do stuff
         auto now = chrono::steady_clock::now();
         prev = now;
 
@@ -253,9 +279,9 @@ extern "C" DLLExport void FDMDelete(KuavteFdmModel* model){
     }
 }
 
-extern "C" DLLExport void FDMStartEnvironment(KuavteFdmModel* model, float frequency, bool realtime){
+extern "C" DLLExport void FDMStartEnvironment(KuavteFdmModel* model, float frequency, bool windActive){
     if(model != NULL){
-        model->StartFDMEnvironment(frequency, realtime);
+        model->StartFDMEnvironment(frequency, windActive);
     }
 }
 

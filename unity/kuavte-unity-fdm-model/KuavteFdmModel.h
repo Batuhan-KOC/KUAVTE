@@ -22,11 +22,14 @@
 #define JSBSIM_AIRCRAFT_DIR "Assets/models/aircraft"
 #define JSBSIM_ENGINE_DIR "Assets/models/engine"
 
+#define MPH_TO_FPS 1.4666667
+
 #define DLLExport __declspec(dllexport)
 
 struct PositionData{
     float x, y, z;
     float phi, theta, psi;
+    float simulation_time;
 };
 
 class DLLExport KuavteFdmModel{
@@ -44,7 +47,7 @@ public:
     void SetTRPY(float throttle, float roll, float pitch, float yaw);
 
     // Start FDM environment
-    void StartFDMEnvironment(float frequency = 25, bool realtime = false);
+    void StartFDMEnvironment(float frequency = 25, bool windActive = false);
 
     // Stop FDM Environment
     void StopFDMEnvironment();
@@ -58,9 +61,13 @@ private:
 
     SGPath modelPath;
 
-    bool rt;
-
     float freq;
+
+    bool windActived{false};
+    // LightAir(2mph) - Light Breeze(5.5mph) - Gentle Breeze(10mph) - Moderate Breeze(15.5 mph) - Fresh Breeze(21.5mph) - Strong Breeze(28mph) - Near Gale(35mph) - Gale(42.5mph)
+    float windSpeed{0.0};
+    // In Radian [Min : 0.0 | Max : 6.283]
+    float windDirection{0.0};
 
     bool isRunning{false};
 

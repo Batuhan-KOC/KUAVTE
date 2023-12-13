@@ -92,7 +92,7 @@ public class TargetBehavior : MonoBehaviour
         Initialize(TargetMovementType.NoMovement);
     }
 
-    void Initialize(TargetMovementType mt = TargetMovementType.NoMovement, 
+    public void Initialize(TargetMovementType mt = TargetMovementType.NoMovement, 
                     TargetSizingType st = TargetSizingType.StaticSize)
     {
         updateEnabled = false;

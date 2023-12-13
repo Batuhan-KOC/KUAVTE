@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 2534.4202, g: 2574.4514, b: 3647.4224, a: 1}
+  m_IndirectSpecularColor: {r: 2529.9436, g: 2571.2542, b: 3645.4302, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1032,7 +1032,7 @@ GameObject:
   - component: {fileID: 554723756}
   - component: {fileID: 554723757}
   m_Layer: 0
-  m_Name: UdpReceiver
+  m_Name: fdm-controller
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1065,6 +1065,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90cd301278b615640a627e089498a526, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  simulationController: {fileID: 1540104582}
   DronePosition: {fileID: 2050574779}
   DroneRPY: {fileID: 1277334963}
 --- !u!1 &687592751
@@ -1106,6 +1107,95 @@ Transform:
   - {fileID: 368576368}
   m_Father: {fileID: 545081835}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &835213721
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 835213722}
+  - component: {fileID: 835213723}
+  m_Layer: 0
+  m_Name: gym-input-receiver
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &835213722
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 835213721}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 18.725286, y: 12.800709, z: -5.0746956}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1540104581}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &835213723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 835213721}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 049349cc8e2f7dc4b99b2fe4042005d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  simulationController: {fileID: 1540104582}
+--- !u!1 &1016624511
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1016624512}
+  - component: {fileID: 1016624513}
+  m_Layer: 0
+  m_Name: gym-output-sender
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1016624512
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1016624511}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1540104581}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1016624513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1016624511}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ab6999b52da7f94ab33e258298f0541, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1130227157
 GameObject:
   m_ObjectHideFlags: 0
@@ -1637,6 +1727,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 554723756}
+  - {fileID: 835213722}
+  - {fileID: 1016624512}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1540104582
@@ -1651,6 +1743,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13b026c590585d34c928153118bcf1d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fdmReady: 0
+  targetBehavior: {fileID: 1499114501}
 --- !u!1 &1555299093
 GameObject:
   m_ObjectHideFlags: 0
